@@ -1,0 +1,12 @@
+fastapi>=0.115
+uvicorn[standard]>=0.30
+anthropic>=0.40
+chromadb>=0.5
+sentence-transformers>=3.0
+pydantic>=2.7
+pydantic-settings>=2.3
+python-dotenv>=1.0
+pyyaml>=6.0
+# Використовує сховище довіри ОС для TLS — потрібне за наявності MITM-проксі/
+# антивіруса зі скануванням HTTPS; на чистих машинах не заважає.
+truststore>=0.9

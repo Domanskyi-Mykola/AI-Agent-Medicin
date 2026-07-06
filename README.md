@@ -1,0 +1,98 @@
+# Trauma AI — MVP асистента лікаря-травматолога
+
+Локальний прототип AI-асистента для лікарів-травматологів та інтернів. Дві функції:
+
+1. **Клінічний Q&A (RAG)** — відповіді на основі перевіреної бази знань (протоколи, класифікації) з обов'язковим посиланням на джерело. Якщо релевантних даних у базі немає — система прямо про це повідомляє, а не вигадує відповідь.
+2. **Асистент документації** — чернетки виписних епікризів, розділів історії хвороби та розділів дисертацій за структурованим вводом лікаря.
+
+> ⚠️ Це MVP для валідації з практикуючим лікарем, **не** production-система. Відповіді мають допоміжний характер і не замінюють рішення лікаря.
+
+## Стек
+
+- **Backend:** Python + FastAPI
+- **LLM:** Anthropic Claude (`claude-sonnet-5` за замовчуванням, змінюється в `.env`)
+- **Векторна БД:** ChromaDB (локально, через інтерфейс `VectorStore` — легко замінити на pgvector/Pinecone)
+- **Embeddings:** `sentence-transformers` (`intfloat/multilingual-e5-base`, підтримує українську)
+- **Frontend:** React + Vite + Tailwind
+
+## Структура
+
+```
+backend/     — FastAPI: api/, rag/, llm/, ingestion/
+frontend/    — React + Vite + Tailwind (екрани «Чат», «Документи»)
+data/sources — приклади markdown-протоколів для RAG
+docs/        — ARCHITECTURE.md
+storage/     — локальна ChromaDB (створюється автоматично, у .gitignore)
+logs/        — аудит-логи викликів LLM (у .gitignore)
+```
+
+## Передумови
+
+- Python 3.11+ (перевірено на 3.13)
+- Node.js 18+
+- Ключ Anthropic API
+
+## Крок 1. Налаштування секретів
+
+```bash
+cp .env.example .env
+# відкрийте .env і впишіть ANTHROPIC_API_KEY
+```
+
+## Крок 2. Backend
+
+```bash
+cd backend
+python -m venv .venv
+# Windows PowerShell:
+.venv\Scripts\Activate.ps1
+# Linux/macOS/WSL:
+# source .venv/bin/activate
+
+pip install -r requirements.txt
+```
+
+> Перший запуск завантажить embedding-модель (~1 ГБ). Це разова операція.
+
+## Крок 3. Ingestion (наповнення бази знань)
+
+З каталогу `backend/`, у активованому venv:
+
+```bash
+python -m ingestion.ingest --reset
+```
+
+Скрипт розбиває файли з `data/sources/*.md` на чанки, рахує ембединги і зберігає в ChromaDB. `--reset` очищає колекцію перед заливкою (для повторного прогону).
+
+## Крок 4. Запуск backend
+
+```bash
+uvicorn app.main:app --reload --port 8000
+```
+
+Перевірка: <http://localhost:8000/api/health> · Swagger: <http://localhost:8000/docs>
+Глибока перевірка ключа (робить реальний запит до Claude): <http://localhost:8000/api/health?deep=true>
+
+## Крок 5. Frontend
+
+В окремому терміналі:
+
+```bash
+cd frontend
+npm install
+npm run dev
+```
+
+Відкрийте <http://localhost:5173>. Vite проксіює `/api` на бекенд (`:8000`) — CORS налаштовувати не треба.
+
+## Наскрізний приклад (перевірка, що RAG працює)
+
+1. Виконали ingestion на прикладних файлах (крок 3).
+2. У вкладці «Клінічний Q&A» спитайте:
+   > Які типи діафізарних переломів виділяє класифікація AO/OTA?
+3. Отримаєте відповідь із посиланнями `[N]` і списком джерел під нею (Класифікація переломів AO/OTA).
+4. Спитайте щось поза базою знань (напр. про кардіологію) — система відповість, що даних недостатньо / питання поза межами травматології.
+
+## Аудит
+
+Кожен виклик LLM (і відмови через порожній retrieval) пишеться в `logs/audit-YYYY-MM-DD.jsonl` — питання, знайдені джерела, відповідь, usage. Персональні дані пацієнтів не логуються (див. `backend/app/audit.py`).

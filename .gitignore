@@ -1,0 +1,19 @@
+# Python
+__pycache__/
+*.pyc
+.venv/
+venv/
+
+# Секрети
+.env
+
+# Локальні дані (векторна БД, аудит-логи)
+storage/
+logs/
+
+# Frontend
+node_modules/
+dist/
+
+# Інше
+.DS_Store
