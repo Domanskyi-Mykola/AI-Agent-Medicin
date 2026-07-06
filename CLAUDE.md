@@ -43,7 +43,8 @@ backend/ingestion/      ingest.py, chunker.py  (запуск: python -m ingestio
 frontend/src/           App.jsx, api.js, views/ChatView.jsx, views/DocumentsView.jsx
 data/sources/           ao-ota-classification.md, gustilo-anderson.md (примеры с YAML front-matter)
 docs/ARCHITECTURE.md    решения + таблица калибровки + список отложенного
-files/                  бриф + дизайн-прототип фаундера (trauma-ai-prototype.html)
+files/                  бриф, дизайн-прототип фаундера (trauma-ai-prototype.html),
+                        стратегический отчёт по рынку/конкурентам/регуляторике (strategic-report-ua-launch-2026.md)
 README.md               инструкция запуска (укр.)
 .env                    ANTHROPIC_API_KEY (рабочий, проверен) + настройки; НЕ в git
 ```
