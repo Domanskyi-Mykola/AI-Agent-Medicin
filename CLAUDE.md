@@ -4,7 +4,9 @@
 
 ## Что это
 
-MVP AI-ассистента для врачей-травматологов и интернов в Украине. Соло-фаундер (Kolya), ограниченный бюджет. Цель текущего этапа — рабочий локальный прототип для валидации с практикующим травматологом (медицинским консультантом), НЕ production. Исходный бриф: `E:\Ai Agent in Medicine\files\claude-code-project-brief.md`.
+MVP AI-ассистента для врачей-травматологов и интернов в Украине. Соло-фаундер (Kolya), ограниченный бюджет. Цель текущего этапа — рабочий локальный прототип для валидации с практикующим травматологом (медицинским консультантом), НЕ production.
+
+Корень проекта: `E:\Ai Agent in Medicine` (перенесён из `E:\trauma-ai` 2026-07-06). Исходный бриф: `files\claude-code-project-brief.md`; там же `files\trauma-ai-prototype.html` — дизайн-прототип фаундера.
 
 Две функции:
 1. **Клинический Q&A (RAG)** — врач задаёт вопрос, система отвечает ТОЛЬКО на основе базы знаний (протоколы, классификации) с обязательными ссылками на источники. Если данных нет — честно говорит «недостатньо даних», не выдумывает.
@@ -41,6 +43,7 @@ backend/ingestion/      ingest.py, chunker.py  (запуск: python -m ingestio
 frontend/src/           App.jsx, api.js, views/ChatView.jsx, views/DocumentsView.jsx
 data/sources/           ao-ota-classification.md, gustilo-anderson.md (примеры с YAML front-matter)
 docs/ARCHITECTURE.md    решения + таблица калибровки + список отложенного
+files/                  бриф + дизайн-прототип фаундера (trauma-ai-prototype.html)
 README.md               инструкция запуска (укр.)
 .env                    ANTHROPIC_API_KEY (рабочий, проверен) + настройки; НЕ в git
 ```
@@ -48,13 +51,13 @@ README.md               инструкция запуска (укр.)
 ## Как запускать
 
 ```powershell
-# терминал 1 — backend
-cd E:\trauma-ai\backend
+# терминал 1 — backend (путь с пробелами — кавычки обязательны)
+cd "E:\Ai Agent in Medicine\backend"
 .venv\Scripts\Activate.ps1
 uvicorn app.main:app --reload --port 8000     # http://localhost:8000/docs, /api/health
 
 # терминал 2 — frontend
-cd E:\trauma-ai\frontend
+cd "E:\Ai Agent in Medicine\frontend"
 npm run dev                                    # http://localhost:5173
 ```
 

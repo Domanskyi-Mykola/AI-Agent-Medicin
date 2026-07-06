@@ -17,3 +17,6 @@ dist/
 
 # Інше
 .DS_Store
+
+# Архів матеріалів (дублює files/)
+files.zip
