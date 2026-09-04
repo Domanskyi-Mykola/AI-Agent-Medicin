@@ -1,5 +1,5 @@
 ---
-source_name: Класифікація відкритих переломів за Gustilo-Anderson
+source_name: "[ЧЕРНЕТКА, не офіційне джерело] Класифікація відкритих переломів за Gustilo-Anderson"
 document_number: Gustilo-Anderson (1976, оновлення 1984)
 date: 1984
 ---

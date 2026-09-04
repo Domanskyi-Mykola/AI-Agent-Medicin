@@ -1,5 +1,5 @@
 ---
-source_name: Класифікація переломів AO/OTA
+source_name: "[ЧЕРНЕТКА, не офіційне джерело] Класифікація переломів AO/OTA"
 document_number: AO/OTA Compendium 2018
 date: 2018
 ---
