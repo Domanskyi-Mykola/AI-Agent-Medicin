@@ -20,3 +20,9 @@ dist/
 
 # Архів матеріалів (дублює files/)
 files.zip
+
+# Внутрішні робочі матеріали (не для публічного репозиторію /
+# показу за межами фаундера): AI-continuity файл і початковий бриф
+CLAUDE.md
+files/claude-code-project-brief.md
+files/strategic-report-ua-launch-2026.md
