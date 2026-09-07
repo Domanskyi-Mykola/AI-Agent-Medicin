@@ -1,0 +1,15 @@
+**/.venv
+**/node_modules
+**/__pycache__
+**/*.pyc
+**/dist
+.git
+.env
+.env.example
+storage
+logs
+files
+files.zip
+CLAUDE.md
+docs
+*.md
