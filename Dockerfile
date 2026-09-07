@@ -22,6 +22,14 @@ COPY backend/ ./
 COPY data/ /app/data/
 COPY --from=frontend-build /app/frontend/dist /app/frontend/dist
 
+# Заливаємо базу знань ПІД ЧАС ЗБІРКИ образу, а не при старті контейнера:
+# рантайм-інстанс на дешевих тарифах хостингу може мати мало RAM і падати
+# (OOM) саме на embedding-моделі + одночасній обробці чанків — на build-
+# машині пам'яті вистачає (уже перевірено: попередній RUN з кешуванням
+# моделі проходить стабільно). Результат (storage/chroma) стає частиною
+# образу — контейнер стартує миттєво, без мережевих запитів і ризику OOM.
+RUN python -m ingestion.ingest --reset
+
 ENV PYTHONUNBUFFERED=1
 EXPOSE 8000
 

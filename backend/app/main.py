@@ -26,11 +26,11 @@ FRONTEND_DIST = REPO_ROOT / "frontend" / "dist"
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
-    # Якщо векторна БД порожня (перший запуск контейнера на чистому диску) —
-    # наповнюємо її з data/sources/*.md автоматично. База зараз крихітна
-    # (2 файли), тож це швидко; коли ingestion.ingest.ingest() матиме сенс
-    # запускати окремим кроком деплою (реальні протоколи, великий обсяг) —
-    # цю автоматичну заливку варто прибрати.
+    # У продакшн-образі ingestion вже виконано ПІД ЧАС ЗБІРКИ (Dockerfile) —
+    # store.count() тут зазвичай > 0, і цей блок нічого не робить. Залишено
+    # як fallback для локального запуску без білд-кроку (напр. голий
+    # `docker run` на своєму образі без наших Dockerfile-кроків, чи venv-
+    # запуск на чистому диску) — тоді заливаємо на льоту, як раніше.
     from app.rag.vector_store import get_vector_store
 
     store = get_vector_store()
