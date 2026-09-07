@@ -7,6 +7,36 @@ const DOC_TYPES = [
   { id: "dissertation_section", label: "Розділ дисертації" },
 ];
 
+// Поля, що ідентифікують пацієнта. ВАЖЛИВО: значення цих полів НІКОЛИ не
+// потрапляють у виклик generateDocument() і, відповідно, ніколи не йдуть на
+// бекенд/до Claude/в audit-лог — вони живуть лише в стані цього компонента
+// (у пам'яті браузера) і підставляються в готовий текст локально, тут-таки.
+// Токени {{...}} — це те, що модель вставляє в текст замість цих даних
+// (див. backend/app/prompts.py, PASSPORT_PLACEHOLDER_BLOCK).
+const PASSPORT_FIELDS = [
+  { key: "patientName", token: "{{PATIENT_NAME}}", label: "ПІБ пацієнта", fallback: "[ВКАЗАТИ: ПІБ пацієнта]" },
+  { key: "patientDob", token: "{{PATIENT_DOB}}", label: "Дата народження", fallback: "[ВКАЗАТИ: дата народження]" },
+  { key: "patientSex", token: "{{PATIENT_SEX}}", label: "Стать", fallback: "[ВКАЗАТИ: стать]" },
+  { key: "cardNumber", token: "{{CARD_NUMBER}}", label: "№ медичної картки", fallback: "[ВКАЗАТИ: № медичної картки]" },
+  { key: "admissionDate", token: "{{ADMISSION_DATE}}", label: "Дата госпіталізації", fallback: "[ВКАЗАТИ: дата госпіталізації]" },
+  { key: "dischargeDate", token: "{{DISCHARGE_DATE}}", label: "Дата виписки", fallback: "[ВКАЗАТИ: дата виписки]" },
+  { key: "doctorName", token: "{{DOCTOR_NAME}}", label: "ПІБ лікаря", fallback: "[ВКАЗАТИ: ПІБ лікаря]" },
+];
+
+const EMPTY_PASSPORT = Object.fromEntries(PASSPORT_FIELDS.map((f) => [f.key, ""]));
+
+// Підставляє локально введені дані пацієнта на місце токенів у тексті, який
+// повернув бекенд. Незаповнене поле лишає звичайний людський плейсхолдер
+// [ВКАЗАТИ: ...] — поведінка як і раніше, якщо лікар нічого не ввів.
+function fillPassportTokens(text, passport) {
+  let out = text;
+  for (const f of PASSPORT_FIELDS) {
+    const value = passport[f.key]?.trim();
+    out = out.split(f.token).join(value || f.fallback);
+  }
+  return out;
+}
+
 export default function DocumentsView() {
   const [form, setForm] = useState({
     doc_type: "discharge_summary",
@@ -14,11 +44,13 @@ export default function DocumentsView() {
     procedure: "",
     notes: "",
   });
+  const [passport, setPassport] = useState(EMPTY_PASSPORT);
   const [result, setResult] = useState(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
 
   const set = (k) => (e) => setForm({ ...form, [k]: e.target.value });
+  const setPassportField = (k) => (e) => setPassport({ ...passport, [k]: e.target.value });
 
   async function onSubmit(e) {
     e.preventDefault();
@@ -87,8 +119,34 @@ export default function DocumentsView() {
           />
         </div>
 
+        {form.doc_type === "discharge_summary" && (
+          <div className="space-y-2 rounded-lg border border-sky-200 bg-sky-50 p-3">
+            <p className="text-xs font-medium text-sky-800">
+              Дані пацієнта — залишаються лише у вашому браузері, AI їх не бачить. Заповніть
+              один раз, і вони самі підставляться в усі потрібні місця чернетки.
+            </p>
+            <div className="grid grid-cols-2 gap-2 sm:grid-cols-3">
+              {PASSPORT_FIELDS.map((f) => (
+                <div key={f.key}>
+                  <label className="block text-xs text-slate-600">{f.label}</label>
+                  <input
+                    type="text"
+                    value={passport[f.key]}
+                    onChange={setPassportField(f.key)}
+                    className="mt-0.5 w-full rounded border border-sky-300 bg-white p-1.5 text-xs focus:border-sky-500 focus:outline-none"
+                  />
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
+
         <p className="text-xs text-amber-700">
-          ⚠ Не вводьте дані, що ідентифікують пацієнта. Модель залишить плейсхолдери [ВКАЗАТИ: …].
+          ⚠ У полях «Діагноз», «Втручання» та «Перебіг» не вказуйте ПІБ, дати народження чи №
+          картки — цей текст іде до AI.{" "}
+          {form.doc_type === "discharge_summary"
+            ? "Для цих даних скористайтеся полями пацієнта вище — вони обробляються лише у вашому браузері."
+            : "Модель залишить плейсхолдери [ВКАЗАТИ: …] на їх місці."}
         </p>
         <button
           type="submit"
@@ -109,7 +167,9 @@ export default function DocumentsView() {
         <div className="space-y-3">
           <div className="rounded-lg border border-slate-200 bg-white p-4">
             <h2 className="mb-2 text-sm font-semibold text-slate-500">Чернетка</h2>
-            <p className="whitespace-pre-wrap text-sm leading-relaxed">{result.text}</p>
+            <p className="whitespace-pre-wrap text-sm leading-relaxed">
+              {fillPassportTokens(result.text, passport)}
+            </p>
           </div>
           <p className="text-xs italic text-slate-500">{result.disclaimer}</p>
         </div>
