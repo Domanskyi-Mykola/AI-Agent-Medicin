@@ -11,7 +11,11 @@ FROM python:3.12-slim AS runtime
 WORKDIR /app/backend
 
 COPY backend/requirements.txt ./
-RUN pip install --no-cache-dir -r requirements.txt
+# CPU-збірка torch: стандартний `pip install torch` на Linux тягне CUDA-варіант
+# (~2.5 ГБ бібліотек, частина з яких потрапляє в пам'ять процесу) — на сервері
+# без GPU це лише зайві сотні МБ RAM і довша збірка.
+RUN pip install --no-cache-dir torch==2.12.1 --index-url https://download.pytorch.org/whl/cpu \
+ && pip install --no-cache-dir -r requirements.txt
 
 # Кешуємо embedding-модель у шар образу (~1 ГБ), щоб контейнер не тягнув її
 # з HuggingFace при кожному холодному старті — довше збирається, зате

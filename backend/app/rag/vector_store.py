@@ -40,6 +40,10 @@ class VectorStore(ABC):
         """Повертає top_k найближчих чанків (відстань — косинусна)."""
 
     @abstractmethod
+    def all_chunks(self) -> list[Chunk]:
+        """Усі чанки (без ембедингів) — для лексичного індексу BM25."""
+
+    @abstractmethod
     def count(self) -> int: ...
 
     @abstractmethod
@@ -82,6 +86,13 @@ class ChromaVectorStore(VectorStore):
                 )
             )
         return chunks
+
+    def all_chunks(self) -> list[Chunk]:
+        res = self._collection.get(include=["documents", "metadatas"])
+        return [
+            Chunk(id=cid, text=res["documents"][i], metadata=res["metadatas"][i] or {})
+            for i, cid in enumerate(res["ids"])
+        ]
 
     def count(self) -> int:
         return self._collection.count()

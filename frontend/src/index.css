@@ -1,3 +1,90 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+/* Відформатований markdown у відповідях і документах (без плагіна typography). */
+.md {
+  font-size: 0.9rem;
+  line-height: 1.6;
+  color: #1e293b;
+}
+.md > * + * {
+  margin-top: 0.6em;
+}
+.md h1 {
+  font-size: 1.15rem;
+  font-weight: 700;
+  margin-top: 0.4em;
+}
+.md h2 {
+  font-size: 1.02rem;
+  font-weight: 700;
+  margin-top: 1em;
+}
+.md h3,
+.md h4 {
+  font-size: 0.95rem;
+  font-weight: 600;
+  margin-top: 0.9em;
+}
+.md ul,
+.md ol {
+  padding-left: 1.3em;
+}
+.md ul {
+  list-style: disc;
+}
+.md ol {
+  list-style: decimal;
+}
+.md li + li {
+  margin-top: 0.2em;
+}
+.md li > ul,
+.md li > ol {
+  margin-top: 0.2em;
+}
+.md strong {
+  font-weight: 600;
+  color: #0f172a;
+}
+.md table {
+  border-collapse: collapse;
+  font-size: 0.85rem;
+  display: block;
+  overflow-x: auto;
+}
+.md th,
+.md td {
+  border: 1px solid #cbd5e1;
+  padding: 0.3em 0.6em;
+  text-align: left;
+  vertical-align: top;
+}
+.md th {
+  background: #f1f5f9;
+  font-weight: 600;
+}
+.md hr {
+  border-color: #e2e8f0;
+}
+.md blockquote {
+  border-left: 3px solid #cbd5e1;
+  padding-left: 0.8em;
+  color: #475569;
+}
+.md a.cite {
+  color: #0f766e;
+  font-weight: 600;
+  text-decoration: none;
+  font-size: 0.8em;
+  vertical-align: super;
+  padding: 0 1px;
+}
+.md a.cite:hover {
+  text-decoration: underline;
+}
+.cite-target:target {
+  background: #ccfbf1;
+  border-radius: 4px;
+}

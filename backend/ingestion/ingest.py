@@ -19,6 +19,7 @@ from __future__ import annotations
 
 import argparse
 import hashlib
+import re
 from pathlib import Path
 
 import yaml
@@ -83,7 +84,15 @@ def ingest(reset: bool = False) -> int:
         ]
         metadatas = [{**meta, "section": c.section, "chunk_index": i} for i, c in enumerate(raw_chunks)]
 
-        embeddings = embed_passages(texts)
+        # Ембединг рахуємо з контекстним заголовком «тема. розділ», а зберігаємо
+        # чистий текст: інакше фрагмент на кшталт «Тип II: рана понад 1 см...» не
+        # несе в собі назви теми і програє при пошуку схожим розділам інших статей.
+        title = meta.get("title") or re.sub(r"^\[[^\]]*\]\s*", "", meta["source_name"])
+        embed_texts = [
+            f"{title}. {c.section}\n{c.text}" if c.section else f"{title}\n{c.text}"
+            for c in raw_chunks
+        ]
+        embeddings = embed_passages(embed_texts)
         store.add(ids=ids, texts=texts, embeddings=embeddings, metadatas=metadatas)
         total += len(raw_chunks)
         print(f"  {file.name}: {len(raw_chunks)} чанків -> '{meta['source_name']}'")

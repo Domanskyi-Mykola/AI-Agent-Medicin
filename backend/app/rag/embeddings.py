@@ -11,11 +11,15 @@ from app.config import get_settings
 
 @lru_cache
 def _get_model():
-    # Важкий імпорт (torch) — робимо ліниво, щоб /api/health та документи
-    # працювали навіть поки модель не завантажена.
+    # Важкий імпорт (torch) — робимо ліниво; у продакшні модель прогрівається
+    # на старті (main.py, lifespan), щоб перший запит лікаря не чекав завантаження.
     from sentence_transformers import SentenceTransformer
 
     return SentenceTransformer(get_settings().embedding_model)
+
+
+def is_loaded() -> bool:
+    return _get_model.cache_info().currsize > 0
 
 
 def get_tokenizer():

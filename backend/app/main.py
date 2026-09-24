@@ -39,6 +39,21 @@ async def lifespan(app: FastAPI):
         from ingestion.ingest import ingest
 
         ingest(reset=False)
+
+    # Прогрів embedding-моделі на старті: перший запит лікаря не чекатиме
+    # завантаження (~1 ГБ), а якщо хостингу бракує пам'яті — процес впаде
+    # тут, при деплої, з видимим записом у логах, а не посеред демонстрації.
+    from app.rag.embeddings import embed_queries
+    from app.rag.lexical import lexical_search
+    from app.sysinfo import memory_limit_mb, rss_mb
+
+    embed_queries(["прогрів"])
+    lexical_search("прогрів", 1)  # будує BM25-індекс з чанків БД
+    print(
+        f"Embedding-модель завантажена. Пам'ять процесу: {rss_mb()} МБ, "
+        f"ліміт контейнера: {memory_limit_mb()} МБ. Чанків у базі: {store.count()}.",
+        flush=True,
+    )
     yield
 
 

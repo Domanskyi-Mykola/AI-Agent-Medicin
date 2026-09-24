@@ -17,12 +17,14 @@ def generate_document(
 ) -> DocumentResponse:
     # НАГАДУВАННЯ (безпека): ввід лікаря не повинен містити даних, що
     # ідентифікують пацієнта (ПІБ, дата народження, № карти). UI попереджає
-    # про це; замість реальних даних модель ставить плейсхолдери [ВКАЗАТИ: ...].
+    # про це; ідентифікуючі поля фронтенд підставляє локально через токени {{...}}.
+    s = get_settings()
     try:
         text, usage = ask_claude(
             user=build_document_user_prompt(req),
             system=DOC_SYSTEM_PROMPT,
-            max_tokens=get_settings().max_document_tokens,
+            max_tokens=s.max_document_tokens,
+            effort=s.claude_effort,
         )
     except LLMNotConfigured as e:
         raise HTTPException(status_code=503, detail=str(e))
@@ -34,11 +36,7 @@ def generate_document(
         {
             "user": user["id"],
             "doc_type": req.doc_type,
-            "input": {
-                "diagnosis": req.diagnosis,
-                "procedure": req.procedure,
-                "notes": req.notes,
-            },
+            "input": req.model_dump(exclude={"doc_type"}),
             "answer": text,
             "llm_called": True,
             "usage": usage,

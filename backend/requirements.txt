@@ -1,12 +1,20 @@
-fastapi>=0.115
-uvicorn[standard]>=0.30
-anthropic>=0.40
-chromadb>=0.5
-sentence-transformers>=3.0
-pydantic>=2.7
-pydantic-settings>=2.3
-python-dotenv>=1.0
-pyyaml>=6.0
+# Версії закріплені навмисно: незакріплені залежності при кожній пересборці
+# на хостингу підтягують найновіші (напр. мажорну anthropic 1.x) і можуть
+# зламати застосунок без жодної зміни в нашому коді. Оновлювати — свідомо,
+# з локальною перевіркою.
+fastapi==0.139.0
+uvicorn[standard]==0.50.2
+anthropic==0.116.0
+chromadb==1.5.9
+sentence-transformers==5.6.0
+transformers==5.13.0
+huggingface_hub==1.22.0
+pydantic==2.13.4
+pydantic-settings==2.14.2
+python-dotenv==1.2.2
+pyyaml==6.0.3
 # Використовує сховище довіри ОС для TLS — потрібне за наявності MITM-проксі/
 # антивіруса зі скануванням HTTPS; на чистих машинах не заважає.
-truststore>=0.9
+truststore==0.10.4
+# torch встановлюється окремо: у Dockerfile — CPU-збірка (без CUDA, у рази
+# менша за розміром і пам'яттю); локально sentence-transformers тягне його сам.
